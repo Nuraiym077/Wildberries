@@ -16,6 +16,19 @@ STATUS_CHOICES = (
     ('delivered', 'delivered')
 )
 
+TYPE_CHOICES = (
+    ('QR code', 'QR code'),
+    ('cash', 'cash'),
+    ('by card', 'by card')
+)
+
+DELIVERY_CHOICES = (
+('Экспресс', 'Экспресс'),
+('Стандарт', 'Стандарт'),
+('Эконом', 'Эконом')
+)
+
+
 class UserProfile(AbstractUser):
     phone_number = PhoneNumberField(null=True, blank=True)
     role = models.CharField(choices=ROLE_CHOICES, default='buyer')
@@ -63,6 +76,15 @@ class ProductImage(models.Model):
         return f'{self.product}, {self.image}'
 
 
+class Cart(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
 
 class Order(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -90,6 +112,94 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.user}, {self.product}, {self.rating}, {self.comment}'
+
+
+class Address(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    city = models.CharField(max_length=30)
+    street = models.CharField(max_length=100)
+    phone = PhoneNumberField()
+
+    def __str__(self):
+        return f'{self.user}, {self.city}, {self.street}, {self.phone}'
+
+
+class Payment(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    payment_type = models.CharField(choices=TYPE_CHOICES, default='cash')
+
+    def __str__(self):
+        return f'{self.order}, {self.payment_type}'
+
+class Delivery(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    tracking_number = models.PositiveIntegerField()
+    delivery_type = models.CharField(choices=DELIVERY_CHOICES, default='Эконом')
+
+    def __str__(self):
+        return f'{self.order}, {self.delivery_type}'
+
+
+class ReturnRequest(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    reason = models.TextField()
+    status = models.CharField(choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f'{self.order}, {self.reason}'
+
+
+class PromoCode(models.Model):
+    code = models.CharField(max_length=15, unique=True)
+    discount_percent = models.PositiveIntegerField()
+    expires_at = models.DateTimeField()
+
+    def __str__(self):
+        return f'{self.code}, {self.discount_percent}'
+
+class Favorite(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user}, {self.product}'
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user}, {self.message}'
+
+
+class Chat(models.Model):
+    buyer = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='buyer')
+    seller = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='seller')
+
+    def __str__(self):
+        return f'{self.buyer}, {self.seller}'
+
+
+class ChatMessage(models.Model):
+    sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    message = models.TextField()
+
+    def __str__(self):
+        return f'{self.sender}, {self.chat}, {self.message}'
+
+
+class SellerPayout(models.Model):
+    seller = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField()
+    status_payment = models.CharField(choices=STATUS_CHOICES, default='pending')
+    paid_date = models.DateField()
+
+    def __str__(self):
+        return f'{self.seller}, {self.amount}, {self.status_payment}'
+
 
 
 
