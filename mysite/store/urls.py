@@ -15,7 +15,6 @@ router.register(r'delivery', DeliveryViewSet)
 router.register(r'favorites', FavoriteViewSet, basename='favorites')
 router.register(r'chat', ChatViewSet, basename='chat')
 router.register(r'chat-messages', ChatMessageViewSet, basename='chat-messages')
-router.register(r'product-images', ProductImageViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

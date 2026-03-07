@@ -1,10 +1,9 @@
 from django.shortcuts import render
-from rest_framework import generics, viewsets, permissions
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import *
-from .serializers import *
-
+from rest_framework import generics, viewsets
+from .serializer import *
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 
 class RegisterView(generics.CreateAPIView):
@@ -96,8 +95,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CartViewSet(viewsets.ModelViewSet):
-    queryset = Cart.objects.all()
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
@@ -120,10 +119,9 @@ class CartItemViewSet(viewsets.ModelViewSet):
         serializer.save(cart=cart)
 
 
-
 class OrderListAPIView(generics.ListAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderListSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
@@ -195,8 +193,8 @@ class PromoCodeDetailAPIView(generics.RetrieveAPIView):
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
-    queryset = Favorite.objects.all()
     serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Favorite.objects.filter(user=self.request.user)
@@ -207,8 +205,8 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 
 
 class NotificationListAPIView(generics.ListAPIView):
-    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user)
