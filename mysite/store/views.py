@@ -1,9 +1,14 @@
-from django.shortcuts import render
-from rest_framework import generics, viewsets
+from drf_yasg.openapi import Response
+from rest_framework import generics, viewsets, status
 from .serializer import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from .permissions import ReadOnlyOrSeller, IsProductOwner
+from .permissions import IsCustomer, IsOrderOwner
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProductFilter, CategoryFilter, OrderFilter, ReviewFilter
+from rest_framework.filters import  SearchFilter
 
 
 class RegisterView(generics.CreateAPIView):
@@ -53,6 +58,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filterset_class = CategoryFilter
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['category_name']
 
 
 class CategoryDetailAPIView(generics.RetrieveAPIView):
@@ -75,6 +83,10 @@ class SubCategoryDetailAPIView(generics.RetrieveAPIView):
 class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
+    permission_classes = [ReadOnlyOrSeller, IsProductOwner]
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    filterset_class = ProductFilter
+    search_fields = ['product_name']
 
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
@@ -91,6 +103,7 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    filterset_class = ReviewFilter
 
 
 
@@ -121,7 +134,8 @@ class CartItemViewSet(viewsets.ModelViewSet):
 
 class OrderListAPIView(generics.ListAPIView):
     serializer_class = OrderListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsCustomer, IsOrderOwner]
+    filterset_class = OrderFilter
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
