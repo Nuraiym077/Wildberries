@@ -74,6 +74,15 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 ASGI_APPLICATION = 'mysite.asgi:application'
 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # имя сервиса redis из docker-compose
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
