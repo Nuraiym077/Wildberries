@@ -2,14 +2,13 @@ from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from rest_framework.response import Response
 
 
-
-
-class RegisterSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('first_name', 'username', 'password',  'phone_number')
+        fields = ('first_name', 'username',  'password',  'phone_number')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -28,7 +27,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
 
-class LoginSerializer(serializers.Serializer):
+class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
@@ -267,3 +266,9 @@ class SellerPayoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellerPayout
         fields = ['id', 'seller', 'amount', 'status_payment', 'paid_date']
+
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = '__all__'

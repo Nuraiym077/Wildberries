@@ -15,6 +15,7 @@ router.register(r'delivery', DeliveryViewSet)
 router.register(r'favorites', FavoriteViewSet, basename='favorites')
 router.register(r'chat', ChatViewSet, basename='chat')
 router.register(r'chat-messages', ChatMessageViewSet, basename='chat-messages')
+router.register(r'articles', ArticleViewSet, basename='articles')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -34,4 +35,7 @@ urlpatterns = [
     path('notifications/<int:pk>/', NotificationDetailAPIView.as_view(), name='notification_detail'),
     path('seller-payouts/', SellerPayoutListAPIView.as_view(), name='seller_payout_list'),
     path('seller-payouts/<int:pk>/', SellerPayoutDetailAPIView.as_view(), name='seller_payout_detail'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 ]

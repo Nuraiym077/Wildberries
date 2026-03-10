@@ -185,7 +185,10 @@ class Chat(models.Model):
 class ChatMessage(models.Model):
     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
+    image =models.ImageField(upload_to='image')
+    video = models.FileField(upload_to='video', null=True, blank=True)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.sender}, {self.chat}, {self.message}'
@@ -201,5 +204,13 @@ class SellerPayout(models.Model):
         return f'{self.seller}, {self.amount}, {self.status_payment}'
 
 
+class Article(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="articles")
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 

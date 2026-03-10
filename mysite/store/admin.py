@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import *
 
+class ArticleInline(admin.TabularInline):
+    model = Article
+    extra = 1
+
+
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -12,7 +17,7 @@ class ReviewInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [ProductImageInline, ReviewInline]
+    inlines = [ProductImageInline, ReviewInline, ArticleInline]
 
 
 class SubcategoryInline(admin.TabularInline):

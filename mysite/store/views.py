@@ -1,4 +1,6 @@
-from drf_yasg.openapi import Response
+from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework import generics, viewsets, status
 from .serializer import *
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -11,8 +13,12 @@ from .filters import ProductFilter, CategoryFilter, OrderFilter, ReviewFilter
 from rest_framework.filters import  SearchFilter
 
 
+
+
+
+
 class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
+    serializer_class = UserRegisterSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -22,7 +28,7 @@ class RegisterView(generics.CreateAPIView):
 
 
 class LoginView(TokenObtainPairView):
-    serializer_class = LoginSerializer
+    serializer_class = UserLoginSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -44,7 +50,6 @@ class LogoutView(generics.GenericAPIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
@@ -270,3 +275,15 @@ class SellerPayoutDetailAPIView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return SellerPayout.objects.filter(seller=self.request.user)
+
+
+class ArticleViewSet(viewsets.ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    permission_classes  = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Article.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
