@@ -187,9 +187,9 @@ class ChatMessage(models.Model):
     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     message = models.TextField(null=True, blank=True)
-    image =models.ImageField(upload_to='image')
+    image =models.ImageField(upload_to='image', null=True, blank=True)
     video = models.FileField(upload_to='video', null=True, blank=True)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_date = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f'{self.sender}, {self.chat}, {self.message}'
