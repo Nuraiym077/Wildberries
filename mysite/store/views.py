@@ -12,8 +12,33 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProductFilter, CategoryFilter, OrderFilter, ReviewFilter
 from rest_framework.filters import  SearchFilter
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
+User = get_user_model()
 
+@api_view(['GET'])
+def search_user(request):
+    email = request.query_params.get('email')
+    try:
+        user = User.objects.get(email=email)
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        })
+    except User.DoesNotExist:
+        return Response({'error': 'Not found'}, status=404)
+
+class ActivateStubView(APIView):
+    def get(self, request):
+        return Response({"status": "ok"})
+
+    def post(self, request):
+        return Response({"status": "ok"})
 
 
 
@@ -254,7 +279,11 @@ class ChatMessageViewSet(viewsets.ModelViewSet):
     serializer_class = ChatMessageSerializer
 
     def get_queryset(self):
-        return ChatMessage.objects.filter(sender=self.request.user)
+        chat_id = self.request.query_params.get('chat')
+        if chat_id:
+            # Показываем все сообщения этого чата (и мои, и чужие)
+            return ChatMessage.objects.filter(chat_id=chat_id)
+        return ChatMessage.objects.none()
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
